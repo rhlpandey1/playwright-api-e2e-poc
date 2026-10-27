@@ -10,8 +10,13 @@ on:
 
 jobs:
   test:
-    name: Playwright Tests
+    name: Playwright Tests - Shard ${{ matrix.shard }}/2
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
 
     steps:
       - name: Checkout repository
@@ -29,21 +34,21 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run tests
-        run: npx playwright test
+      - name: Run Playwright shard
+        run: npx playwright test --shard=${{ matrix.shard }}/2
 
       - name: Upload HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-shard-${{ matrix.shard }}
           path: playwright-report/
           if-no-files-found: ignore
 
-      - name: Upload test results
+      - name: Upload test results on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-test-results
+          name: playwright-results-shard-${{ matrix.shard }}
           path: test-results/
           if-no-files-found: ignore
