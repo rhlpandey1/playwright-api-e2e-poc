@@ -1,5 +1,5 @@
 
-import { test, expect } from '@playwright/test';
+import { test, expect, request } from '@playwright/test';
 import { APIRequestContext } from '@playwright/test';
 
 import { chromium } from '@playwright/test';
@@ -47,10 +47,12 @@ test('GET - retrieve a booking by ID', async ({ request }) => {
 });
 
 test('GET - filter bookings using query parameters', async ({ request }) => {
+    await createBooking(request);
+
     const response = await request.get('/booking', {
         params: {
-            firstname: 'Sally',
-            lastname: 'Brown',
+            firstname: 'Rahul',
+            lastname: 'Automation',
         },
     });
 
@@ -58,7 +60,10 @@ test('GET - filter bookings using query parameters', async ({ request }) => {
 
     const body = await response.json();
 
+    console.log('Filtered bookings:', JSON.stringify(body, null, 2));
+
     expect(Array.isArray(body)).toBeTruthy();
+    expect(body.length).toBeGreaterThan(0);
 });
 
 test('GET - request a nonexistent booking', async ({ request }) => {
